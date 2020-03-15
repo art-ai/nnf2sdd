@@ -15,7 +15,7 @@ Requirements:
 
 ## AUTHORS
 
-Developed by Arthur Choi, of the Automated Reasoning Group at the
+Developed by Arthur Choi of the Automated Reasoning Group at the
 University of California, Los Angeles.
 
   http://reasoning.cs.ucla.edu
