@@ -233,6 +233,15 @@ class ObddNode:
                 node.data = count
         return count
 
+    def is_model(self,inst):
+        if self.is_terminal():
+            return self.sign
+        val = inst[self.dvar]
+        if val:
+            return self.hi.is_model(inst)
+        else:
+            return self.lo.is_model(inst)
+
     def count(self,dvar=None):
         """returns number of decision nodes"""
         count,dvar_count = 0,0

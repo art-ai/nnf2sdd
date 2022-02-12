@@ -2,8 +2,6 @@
 
 import sys
 from collections import defaultdict
-import pysdd
-from pysdd.sdd import Vtree, SddManager, SddNode
 from .circuits import Literal, AndGate, OrGate, Nnf
 
 class Verbose:
@@ -241,6 +239,8 @@ def compile_nnf_recursive_by_depth(nnf,mgr,verbose=False):
 
 if __name__ == '__main__':
     from timer import Timer
+    import pysdd
+    from pysdd.sdd import Vtree, SddManager
 
     basename = 'c432.isc'
     nnf_filename = 'examples/%s.cnf.nnf' % basename

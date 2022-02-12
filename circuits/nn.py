@@ -14,7 +14,7 @@ def compile_nn(nnf_filename,precision,dataset_filename,\
     with Timer("reading"):
         manager,nnf = Nnf.read(nnf_filename)
     with Timer("flattening"):
-        flat = nnf.flatten(manager)
+        flat = nnf.flatten(manager,precision=precision)
     # flat is an NNF (and/or circuit)
     var_count = manager.var_count
     node_count,edge_count = flat.root.count_and_size()
