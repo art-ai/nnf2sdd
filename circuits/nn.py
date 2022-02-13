@@ -4,12 +4,12 @@ import sys
 from random import randint
 from circuits import *
 from circuits.data import read_csv
-from pysdd.sdd import Vtree, SddManager, SddNode
 
 def compile_nn(nnf_filename,precision,dataset_filename,\
                sdd_filename="tmp.sdd",vtree_filename="tmp.vtree",\
                var_order=None,verbose=False):
     from circuits import Timer # ACAC???
+    from pysdd.sdd import Vtree, SddManager, SddNode
 
     with Timer("reading"):
         manager,nnf = Nnf.read(nnf_filename)

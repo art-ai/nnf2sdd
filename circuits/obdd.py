@@ -118,8 +118,9 @@ class ObddManager:
     def save_sdd(self,filename,root):
         last_var = self.var_count
         count,last_count = root.count(dvar=last_var)
-        # decision-nodes + T + F + literals - last-decision-nodes
-        node_count = ( count + 2 + 2*self.var_count ) - last_count
+        terminal_count = root.count_terminals()
+        # decision-nodes + terminals + literals - last-decision-nodes
+        node_count = (count + terminal_count + 2*self.var_count) - last_count
         cache = {}
         with open(filename,'w') as f:
             f.write("sdd %d\n" % node_count)
@@ -233,6 +234,32 @@ class ObddNode:
                 node.data = count
         return count
 
+    def models(self):
+        """generator that yields all models of the obdd."""
+        if self.is_terminal():
+            if self.is_true():
+                yield dict()
+        else:
+            for model in self.hi.models():
+                model[self.dvar] = 1
+                yield model
+            for model in self.lo.models():
+                model[self.dvar] = 0
+                yield model
+
+    def non_models(self):
+        """generator that yields all non-models of the obdd."""
+        if self.is_terminal():
+            if self.is_false():
+                yield dict()
+        else:
+            for model in self.hi.non_models():
+                model[self.dvar] = 1
+                yield model
+            for model in self.lo.non_models():
+                model[self.dvar] = 0
+                yield model
+
     def is_model(self,inst):
         if self.is_terminal():
             return self.sign
@@ -254,6 +281,14 @@ class ObddNode:
             return (count,dvar_count)
         else:
             return count
+
+    def count_terminals(self):
+        """returns number of reachable terminals"""
+        count = 0
+        for node in self:
+            if node.is_terminal():
+                count += 1
+        return count
 
     def __repr__(self):
         if self.is_decision_node:

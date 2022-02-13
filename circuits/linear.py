@@ -22,6 +22,15 @@ class Classifier:
 
     def __repr__(self):
         st = []
+        st.append("name: %s" % self.output_filename)
+        st.append("size: %s" % self.num_attr)
+        st.append("weights: %s" % " ".join(self.weights))
+        st.append("threshold: %s" % self.threshold)
+        #st.append("bias: %s" % self.bias)
+        return "\n".join(st)
+
+    def format_andy(self):
+        st = []
         st.append( "%s\n" % self.output_filename )
         st.append( "%s %s %s %s %s\n" % ( self.num_attr,self.num_values,
                                           self.prior,self.threshold,
@@ -30,17 +39,46 @@ class Classifier:
         return "".join(st)
 
     @staticmethod
-    def read(filename):
+    def read_andy(filename):
+        """Read Andy's neuron format (deprecated)"""
         with open(filename,'r') as f:
             lines = f.readlines()
         lines = [ line.strip() for line in lines ]
         output_filename = lines[0]
-        # ACAC
-        num_attr,num_values,prior,threshold,offset = lines[2].split()
-        weights = lines[3].split()
+        num_attr,num_values,prior,threshold,offset = lines[1].split()
+        weights = lines[2].split()
         return Classifier(output_filename,\
                  num_attr,num_values,prior,threshold,offset,\
                  weights)
+
+    @staticmethod
+    def parse(st):
+        """Parse a neuron string format"""
+        neuron = dict()
+        for line in st.split('\n'):
+            if not line: continue
+            field,value = line.split(':')
+            field = field.strip()
+            value = value.strip()
+            neuron[field] = value
+        output_filename = "none"
+        num_attr = neuron["size"]
+        num_values = 2
+        prior = 0.0
+        threshold = neuron["threshold"]
+        bias = neuron["bias"]
+        offset = 0
+        weights = neuron["weights"].split()
+        return Classifier(output_filename,\
+                 num_attr,num_values,prior,threshold,offset,\
+                 weights)
+
+    @staticmethod
+    def read(filename):
+        """Read a neuron from file"""
+        with open(filename,'r') as f:
+            st = f.read()
+        return Classifier.parse(st)
 
     def save(self,filename=None):
         if filename is None: filename = self.filename
@@ -109,7 +147,7 @@ class Classifier:
                 next_level[hi] = None
                 next_level[lo] = None
         last_level = matrix[var_count+1]
-        threshold = -int(self.threshold)
+        threshold = int(self.threshold)
         for node in last_level:
             last_level[node] = node >= threshold
         return self._to_obdd(matrix)
