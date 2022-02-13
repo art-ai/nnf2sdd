@@ -79,6 +79,29 @@ class ObddManager:
         nnf = Nnf(node_count,edge_count,mgr.var_count,alpha)
         return mgr,nnf
 
+    def obdd_to_pyeda(self,root):
+        """This converts our OBDD to an OBDD in the PyEDA module.
+        You can use this to save the OBDD to a png file."""
+        from pyeda.inter import bddvars
+        dvars = bddvars('x',self.var_count+1) # extra var to 1-index
+        x = dvars[0]
+        true,false = (x|~x),(x&~x)
+        for node in root.__iter__(clear_data=True):
+            if node.is_terminal():
+                f = false if node.is_false() else true
+            else:
+                dvar = dvars[node.dvar]
+                f = (dvar & node.hi.data) | (~dvar & node.lo.data)
+            node.data = f
+        return f
+
+    def obdd_to_png(self,root,filename):
+        import pydot
+        obdd = self.obdd_to_pyeda(root)
+        obdd_dot_string = obdd.to_dot()
+        graphs = pydot.graph_from_dot_data(obdd_dot_string)
+        graphs[0].write_png(filename)
+
     def _reindex(self,root):
         for i,node in enumerate(root):
             node._index = i

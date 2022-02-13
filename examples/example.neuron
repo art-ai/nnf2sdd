@@ -2,4 +2,3 @@ name: example
 size: 4
 weights: 1 2 3 4
 threshold: 5
-bias: -5
