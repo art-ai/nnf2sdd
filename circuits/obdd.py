@@ -249,6 +249,8 @@ class ObddNode:
         return self if last is None else last
 
     def model_count(self,var_count):
+        if self.is_false(): return 0
+        if self.is_true(): return 2**var_count
         for node in self.__iter__(clear_data=True):
             if node.is_terminal():
                 node.data = 0 if node.is_false() else 2**var_count
