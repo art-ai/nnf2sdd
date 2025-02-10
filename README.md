@@ -22,7 +22,7 @@ University of California, Los Angeles.
 
 Feedback, bug reports, and questions can be sent to the email address
 
-  aychoi@cs.ucla.edu
+  achoi13@kennesaw.edu
 
 ## LICENSE
 
