@@ -63,6 +63,7 @@ class Classifier:
         """Parse a neuron string format"""
         neuron = {}
         for line in st.split('\n'):
+            line = line.strip()
             if not line: continue
             field,value = line.split(':')
             field = field.strip()

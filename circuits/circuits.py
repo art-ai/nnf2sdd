@@ -271,6 +271,8 @@ class Nnf:
         self.root._ref_count += 1
 
     def flatten(self,mgr,precision=None):
+        """flatten NnfGate's to AndGate/OrGate's"""
+
         for node in self.root.__iter__(clear_data=True):
             if isinstance(node,NnfGate):
                 node._make_nnf(precision)
@@ -293,6 +295,47 @@ class Nnf:
         nnf = Nnf(node_count,edge_count,mgr.var_count,alpha)
         return nnf
 
+    def _binarize_node(self,mgr,node):
+        """convert a given node over k inputs into a sequence of nodes
+        with 2 inputs each.  assumes node is a gate, and not a literal
+        """
+
+        if not isinstance(node,OrGate) and not isinstance(node,AndGate):
+            raise Exception("Nnf.binarize: unknown gate type: " + str(type(node)))
+
+        cls = type(node)
+        if len(node.children) == 0:
+            return node._data
+        elif len(node.children) == 1:
+            new_child = node.children[0]._data
+            sibling = mgr.new_node(cls,children=[])
+            new_children = [new_child,sibling]
+            return mgr.new_node(cls,children=new_children)
+        elif len(node.children) == 2:
+            new_children = [ child._data for child in node.children ]
+            return mgr.new_node(cls,children=new_children)
+        else:
+            new_children = [ child._data for child in node.children ]
+            last_child = new_children[0]
+            for child in new_children[1:]:
+                last_child = mgr.new_node(cls,children=[last_child,child])
+            return last_child
+
+    def binarize(self,mgr):
+        """convert all AndGate/OrGate's to have 0 or 2 inputs."""
+
+        for node in self.root.__iter__(clear_data=True):
+            if node.is_input():
+                node._data = node
+            else: # node.is_gate()
+                new_node = self._binarize_node(mgr,node)
+                node._data = new_node
+
+        alpha = new_node
+        node_count,edge_count = alpha.count_and_size()
+        nnf = Nnf(node_count,edge_count,mgr.var_count,alpha)
+        return nnf
+        
     def is_model(self,inst):
         # inst is a map: var_index -> {0,1}
         return self.root.is_model(inst)
