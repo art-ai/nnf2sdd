@@ -344,6 +344,26 @@ class Nnf:
     # I/O
     ########################################
 
+    def _sort_nodes(self):
+        """sorts the nodes: constants (false/true) appear first, then
+        literals, then internal nodes in a reverse topological order"""
+        constants = []
+        literals = []
+        nodes = []
+        for node in self.root:
+            if node.is_input():
+                literals.append(node)
+            else: # node.is_gate()
+                if len(node.children) == 0:
+                    constants.append(node)
+                else:
+                    nodes.append(node)
+        if len(constants) >= 2 and isinstance(constants[0],AndGate):
+            # put False (OrGate with 0 children) first
+            constants.reverse()
+        literals.sort(key=lambda node: node.literal)
+        return constants + literals + nodes
+
     @staticmethod
     def read(filename):
         with open(filename,'r') as f:
@@ -411,7 +431,6 @@ class Nnf:
                                               len(child_ids),child_st))
                 else:
                     raise Exception("Nnf.save: unknown type")
-
 
 class NnfManager:
     def __init__(self,var_count):
